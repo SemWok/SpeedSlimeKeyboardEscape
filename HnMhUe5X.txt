@@ -1,0 +1,320 @@
+-- ============================================================
+-- SEMWOK HUB - FINAL FULL VERSION (MERGED)
+-- ============================================================
+local sound = Instance.new("Sound", workspace); sound.SoundId = "rbxassetid://130485557925287"; sound.Volume = 3; sound.Looped = false; sound:Play()
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RS = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local UIS = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+local ScreenGui = Instance.new("ScreenGui", CoreGui)
+ScreenGui.Name = "SemWokGui"
+ScreenGui.IgnoreGuiInset = true
+
+-- 1. LOADING FRAME
+local LoadingFrame = Instance.new("Frame", ScreenGui)
+LoadingFrame.Size = UDim2.new(1, 0, 1, 0); LoadingFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15); LoadingFrame.ZIndex = 10
+local LoadingText = Instance.new("TextLabel", LoadingFrame)
+LoadingText.Size = UDim2.new(0, 600, 0, 80); LoadingText.Position = UDim2.new(0.5, -300, 0.4, 0); LoadingText.TextColor3 = Color3.new(1, 1, 1); LoadingText.Font = Enum.Font.GothamBold; LoadingText.TextSize = 30; LoadingText.BackgroundTransparency = 1; LoadingText.ZIndex = 11
+
+task.spawn(function()
+    local fullText = "LOADING SEMWOK HUB"
+    for i = 1, #fullText do LoadingText.Text = string.sub(fullText, 1, i); task.wait(0.1) end
+end)
+
+local BarContainer = Instance.new("Frame", LoadingFrame)
+BarContainer.Size = UDim2.new(0, 300, 0, 6); BarContainer.Position = UDim2.new(0.5, -150, 0.55, 0); BarContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 30); BarContainer.ZIndex = 11; Instance.new("UICorner", BarContainer).CornerRadius = UDim.new(0, 3)
+local ProgressBar = Instance.new("Frame", BarContainer)
+ProgressBar.Size = UDim2.new(0, 0, 1, 0); ProgressBar.BackgroundColor3 = Color3.fromRGB(138, 43, 226); ProgressBar.ZIndex = 12
+
+-- 2. TOGGLE & LOCK
+local ButtonsContainer = Instance.new("Frame", ScreenGui)
+ButtonsContainer.Size = UDim2.new(0, 80, 0, 100); ButtonsContainer.Position = UDim2.new(0, 20, 0.5, -200); ButtonsContainer.BackgroundTransparency = 1
+local ToggleBtn = Instance.new("TextButton", ButtonsContainer)
+ToggleBtn.Size = UDim2.new(1, 0, 0, 40); ToggleBtn.Text = "Toggle"; ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30); ToggleBtn.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 4)
+local LockBtn = Instance.new("TextButton", ButtonsContainer)
+LockBtn.Size = UDim2.new(1, 0, 0, 40); LockBtn.Position = UDim2.new(0, 0, 0, 50); LockBtn.Text = "Lock"; LockBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30); LockBtn.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", LockBtn).CornerRadius = UDim.new(0, 4)
+
+-- 3. MAIN MENU
+local defaultPos = UDim2.new(0.5, -275, 0.5, -175)
+local MainMenu = Instance.new("Frame", ScreenGui)
+MainMenu.Size = UDim2.new(0, 550, 0, 350); MainMenu.Position = defaultPos; MainMenu.BackgroundColor3 = Color3.fromRGB(20, 20, 20); MainMenu.Visible = false; MainMenu.Active = true; MainMenu.Draggable = true; Instance.new("UICorner", MainMenu).CornerRadius = UDim.new(0, 6)
+
+ToggleBtn.MouseButton1Click:Connect(function() MainMenu.Visible = not MainMenu.Visible; if MainMenu.Visible then MainMenu.Position = defaultPos end end)
+LockBtn.MouseButton1Click:Connect(function() MainMenu.Draggable = not MainMenu.Draggable; LockBtn.Text = MainMenu.Draggable and "Lock" or "Unlock" end)
+
+-- Header & Sidebar (SUDAH DIUPDATE)
+local Header = Instance.new("Frame", MainMenu); Header.Size = UDim2.new(1, 0, 0, 40); Header.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 6)
+local Title = Instance.new("TextLabel", Header); Title.Text = "  SemWok Hub"; Title.TextColor3 = Color3.new(1, 1, 1); Title.Font = Enum.Font.GothamBold; Title.TextSize = 16; Title.TextXAlignment = Enum.TextXAlignment.Left; Title.Size = UDim2.new(0.4, 0, 1, 0); Title.BackgroundTransparency = 1
+
+-- TULISAN TAMBAHAN (DIPERBARUI: Lebih kanan & Efek Rainbow)
+local Credit = Instance.new("TextLabel", Header); Credit.Text = "Created By: SemWok"; Credit.Font = Enum.Font.GothamBold; Credit.TextSize = 10; Credit.TextXAlignment = Enum.TextXAlignment.Left; Credit.Size = UDim2.new(0.3, 0, 1, 0); Credit.Position = UDim2.new(0.22, 0, 0, 0); Credit.BackgroundTransparency = 1
+
+-- Efek Rainbow Kelap-Kelip
+task.spawn(function()
+    while task.wait(0.5) do
+        TweenService:Create(Credit, TweenInfo.new(0.5), {TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)}):Play()
+    end
+end)
+
+local SearchBox = Instance.new("TextBox", Header); SearchBox.Size = UDim2.new(0.4, 0, 0.6, 0); SearchBox.Position = UDim2.new(0.55, 0, 0.2, 0); SearchBox.PlaceholderText = "Search"; SearchBox.Text = ""; SearchBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15); SearchBox.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 4)
+local SearchIcon = Instance.new("ImageLabel", SearchBox); SearchIcon.Size = UDim2.new(0, 20, 0, 20); SearchIcon.Position = UDim2.new(0, 5, 0.1, 0); SearchIcon.BackgroundTransparency = 1; SearchIcon.Image = "rbxassetid://3926305904"; SearchIcon.ImageRectOffset = Vector2.new(964, 324); SearchIcon.ImageRectSize = Vector2.new(36, 36)
+
+local Sidebar = Instance.new("Frame", MainMenu); Sidebar.Size = UDim2.new(0, 150, 1, -40); Sidebar.Position = UDim2.new(0, 0, 0, 40); Sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+
+-- GARIS HITAM
+local RedLineVert = Instance.new("Frame", MainMenu)
+RedLineVert.Size = UDim2.new(0, 2, 1, -40)
+RedLineVert.Position = UDim2.new(0, 147, 0, 40)
+RedLineVert.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+RedLineVert.BorderSizePixel = 0; RedLineVert.ZIndex = 5
+
+local RedLineHoriz = Instance.new("Frame", MainMenu)
+RedLineHoriz.Size = UDim2.new(1, 0, 0, 2)
+RedLineHoriz.Position = UDim2.new(0, 0, 0, 310)
+RedLineHoriz.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+RedLineHoriz.BorderSizePixel = 0; RedLineHoriz.ZIndex = 5
+
+-- Sidebar Buttons
+local ChangelogBtn = Instance.new("TextButton", Sidebar); ChangelogBtn.Size = UDim2.new(1, 0, 0, 40); ChangelogBtn.Text = "Changelog"; ChangelogBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25); ChangelogBtn.TextColor3 = Color3.new(1, 1, 1); ChangelogBtn.Font = Enum.Font.GothamBold; ChangelogBtn.TextSize = 14
+local MainFeaturesBtn = Instance.new("TextButton", Sidebar); MainFeaturesBtn.Size = UDim2.new(1, 0, 0, 40); MainFeaturesBtn.Position = UDim2.new(0, 0, 0, 45); MainFeaturesBtn.Text = "Main Features"; MainFeaturesBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35); MainFeaturesBtn.TextColor3 = Color3.new(1, 1, 1); MainFeaturesBtn.Font = Enum.Font.GothamBold; MainFeaturesBtn.TextSize = 14
+local PlayerFeaturesBtn = Instance.new("TextButton", Sidebar); PlayerFeaturesBtn.Size = UDim2.new(1, 0, 0, 40); PlayerFeaturesBtn.Position = UDim2.new(0, 0, 0, 90); PlayerFeaturesBtn.Text = "Player"; PlayerFeaturesBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25); PlayerFeaturesBtn.TextColor3 = Color3.new(1, 1, 1); PlayerFeaturesBtn.Font = Enum.Font.GothamBold; PlayerFeaturesBtn.TextSize = 14
+local MusicBtn = Instance.new("TextButton", Sidebar); MusicBtn.Size = UDim2.new(1, 0, 0, 40); MusicBtn.Position = UDim2.new(0, 0, 0, 135); MusicBtn.Text = "Music"; MusicBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25); MusicBtn.TextColor3 = Color3.new(1, 1, 1); MusicBtn.Font = Enum.Font.GothamBold; MusicBtn.TextSize = 14
+
+-- User Info
+local UserFrame = Instance.new("Frame", Sidebar); UserFrame.Size = UDim2.new(1, 0, 0, 40); UserFrame.Position = UDim2.new(0, 0, 1, -40); UserFrame.BackgroundTransparency = 1
+local UserImage = Instance.new("ImageLabel", UserFrame); UserImage.Size = UDim2.new(0, 30, 0, 30); UserImage.Position = UDim2.new(0, 10, 0, 5); UserImage.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420); Instance.new("UICorner", UserImage).CornerRadius = UDim.new(1, 0)
+local UserName = Instance.new("TextLabel", UserFrame); UserName.Text = LocalPlayer.Name; UserName.Position = UDim2.new(0, 45, 0, 5); UserName.Size = UDim2.new(0, 100, 0, 30); UserName.TextColor3 = Color3.new(1, 1, 1); UserName.Font = Enum.Font.GothamBold; UserName.TextSize = 12; UserName.TextXAlignment = Enum.TextXAlignment.Left; UserName.BackgroundTransparency = 1
+
+-- Tombol Sosial
+local SocialContainer = Instance.new("Frame", MainMenu); SocialContainer.Size = UDim2.new(0, 390, 0, 30); SocialContainer.Position = UDim2.new(0, 155, 1, -35); SocialContainer.BackgroundTransparency = 1
+local YTBtn = Instance.new("TextButton", SocialContainer); YTBtn.Size = UDim2.new(0, 190, 1, 0); YTBtn.Text = "YouTube: SemWok"; YTBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0); YTBtn.TextColor3 = Color3.new(1, 1, 1); YTBtn.Font = Enum.Font.GothamBold; YTBtn.TextSize = 10; Instance.new("UICorner", YTBtn).CornerRadius = UDim.new(0, 4)
+YTBtn.MouseButton1Click:Connect(function() setclipboard("https://youtube.com/@SemWok") end)
+local DCBtn = Instance.new("TextButton", SocialContainer); DCBtn.Size = UDim2.new(0, 190, 1, 0); DCBtn.Position = UDim2.new(0, 200, 0, 0); DCBtn.Text = "Discord"; DCBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242); DCBtn.TextColor3 = Color3.new(1, 1, 1); DCBtn.Font = Enum.Font.GothamBold; DCBtn.TextSize = 10; Instance.new("UICorner", DCBtn).CornerRadius = UDim.new(0, 4)
+DCBtn.MouseButton1Click:Connect(function() setclipboard("https://discord.gg/semwok") end)
+
+-- Info Popup
+local InfoPopup = Instance.new("Frame", MainMenu); InfoPopup.Size = UDim2.new(0, 250, 0, 150); InfoPopup.Position = UDim2.new(0.5, -125, 0.5, -75); InfoPopup.BackgroundColor3 = Color3.fromRGB(30, 30, 30); InfoPopup.Visible = false; InfoPopup.ZIndex = 50; Instance.new("UICorner", InfoPopup).CornerRadius = UDim.new(0, 8)
+local InfoText = Instance.new("TextLabel", InfoPopup); InfoText.Size = UDim2.new(1, -20, 1, -20); InfoText.Position = UDim2.new(0, 10, 0, 10); InfoText.TextColor3 = Color3.new(1, 1, 1); InfoText.BackgroundTransparency = 1; InfoText.TextXAlignment = Enum.TextXAlignment.Left; InfoText.Font = Enum.Font.Code; InfoText.TextSize = 12; InfoText.Text = ""; InfoText.ZIndex = 51
+local InfoBtn = Instance.new("TextButton", UserFrame); InfoBtn.Size = UDim2.new(1, 0, 1, 0); InfoBtn.BackgroundTransparency = 1; InfoBtn.Text = ""; InfoBtn.MouseButton1Click:Connect(function() InfoPopup.Visible = not InfoPopup.Visible end)
+
+-- Logic Loops
+task.spawn(function()
+    while task.wait(1) do
+        if InfoPopup.Visible then
+            local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+            local serverType = (game.PrivateServerId ~= "" and game.PrivateServerOwnerId ~= 0) and "Private" or "Public"
+            InfoText.Text = "Executor: Mobile (Redfinger)\nDevice: Mobile\nGame: "..gameName.."\nServer: "..serverType.."\nPlayers: "..#Players:GetPlayers().."/"..Players.MaxPlayers.."\nTime: "..math.floor(workspace.DistributedGameTime/60).." min\nUser: "..LocalPlayer.Name
+        end
+    end
+end)
+
+-- Containers
+local ChangelogContainer = Instance.new("Frame", MainMenu); ChangelogContainer.Size = UDim2.new(1, -150, 1, -80); ChangelogContainer.Position = UDim2.new(0, 150, 0, 40); ChangelogContainer.BackgroundTransparency = 1; ChangelogContainer.Visible = false
+local MainContainer = Instance.new("Frame", MainMenu); MainContainer.Size = UDim2.new(1, -150, 1, -80); MainContainer.Position = UDim2.new(0, 150, 0, 40); MainContainer.BackgroundTransparency = 1
+local PlayerContainer = Instance.new("Frame", MainMenu); PlayerContainer.Size = UDim2.new(1, -150, 1, -80); PlayerContainer.Position = UDim2.new(0, 150, 0, 40); PlayerContainer.BackgroundTransparency = 1; PlayerContainer.Visible = false
+
+-- MUSIC CONTAINER
+local MusicContainer = Instance.new("ScrollingFrame", MainMenu); MusicContainer.Size = UDim2.new(1, -150, 1, -80); MusicContainer.Position = UDim2.new(0, 150, 0, 40); MusicContainer.BackgroundTransparency = 1; MusicContainer.Visible = false; MusicContainer.ScrollBarThickness = 5; MusicContainer.CanvasSize = UDim2.new(0, 0, 0, 300)
+
+-- MUSIC LOGIC
+local AllMusicItems = {}
+local function CreateMusicItem(name, audioId, yPos, index)
+    local frame = Instance.new("Frame", MusicContainer); frame.Size = UDim2.new(0.95, 0, 0, 70); frame.Position = UDim2.new(0.025, 0, 0, yPos); frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35); Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 4)
+    local lbl = Instance.new("TextLabel", frame); lbl.Size = UDim2.new(1, -60, 0, 20); lbl.Position = UDim2.new(0, 10, 0, 5); lbl.Text = name; lbl.TextColor3 = Color3.new(1,1,1); lbl.BackgroundTransparency = 1; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 16
+    local pBtn = Instance.new("TextButton", frame); pBtn.Size = UDim2.new(0, 40, 0, 40); pBtn.Position = UDim2.new(1, -45, 0, 15); pBtn.Text = "▶"; pBtn.TextColor3 = Color3.new(1, 1, 1); pBtn.BackgroundTransparency = 1; pBtn.Font = Enum.Font.GothamBold; pBtn.TextSize = 30
+    local lBtn = Instance.new("TextButton", frame); lBtn.Size = UDim2.new(0, 30, 0, 30); lBtn.Position = UDim2.new(1, -80, 0, 20); lBtn.Text = "🔁"; lBtn.TextColor3 = Color3.new(0.5, 0.5, 0.5); lBtn.BackgroundTransparency = 1; lBtn.TextSize = 20
+    
+    local timeLbl = Instance.new("TextLabel", frame); timeLbl.Size = UDim2.new(0, 100, 0, 20); timeLbl.Position = UDim2.new(0, 10, 0, 25); timeLbl.TextColor3 = Color3.new(0.8, 0.8, 0.8); timeLbl.BackgroundTransparency = 1; timeLbl.Font = Enum.Font.Code; timeLbl.TextSize = 10; timeLbl.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local barCont = Instance.new("TextButton", frame); barCont.Size = UDim2.new(0.6, 0, 0, 8); barCont.Position = UDim2.new(0.05, 0, 0, 50); barCont.BackgroundColor3 = Color3.fromRGB(20, 20, 20); barCont.Text = ""; Instance.new("UICorner", barCont).CornerRadius = UDim.new(0, 4)
+    local bar = Instance.new("Frame", barCont); bar.Size = UDim2.new(0,0,1,0); bar.BackgroundColor3 = Color3.fromRGB(138, 43, 226); Instance.new("UICorner", bar).CornerRadius = UDim.new(0, 4)
+    
+    local snd = Instance.new("Sound", workspace); snd.SoundId = "rbxassetid://"..audioId; snd.Volume = 2
+    local loopMode = 0
+    local isDragging = false
+
+    local function updateTime(input) local relativeX = (input.Position.X - barCont.AbsolutePosition.X) / barCont.AbsoluteSize.X; snd.TimePosition = math.clamp(relativeX * snd.TimeLength, 0, snd.TimeLength) end
+    barCont.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then isDragging = true; updateTime(input) end end)
+    UIS.InputChanged:Connect(function(input) if isDragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then updateTime(input) end end)
+    UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then isDragging = false end end)
+
+    lBtn.MouseButton1Click:Connect(function()
+        loopMode = (loopMode + 1) % 3
+        if loopMode == 0 then lBtn.Text = "🔁"; lBtn.TextColor3 = Color3.new(0.5, 0.5, 0.5)
+        elseif loopMode == 1 then lBtn.Text = "🔁"; lBtn.TextColor3 = Color3.fromRGB(0, 120, 215)
+        else lBtn.Text = "🔂"; lBtn.TextColor3 = Color3.fromRGB(0, 120, 215) end
+    end)
+
+    local function triggerPlay() for _, item in pairs(AllMusicItems) do item.Sound:Stop(); item.Button.Text = "▶" end; snd:Play(); pBtn.Text = "⏸" end
+    pBtn.MouseButton1Click:Connect(function() if snd.IsPlaying then snd:Stop(); pBtn.Text = "▶" else triggerPlay() end end)    
+    snd.Ended:Connect(function() 
+        if loopMode == 1 then snd.TimePosition = 0; snd:Play(); loopMode = 0; lBtn.Text = "🔁"; lBtn.TextColor3 = Color3.new(0.5, 0.5, 0.5)
+        elseif loopMode == 2 then snd.TimePosition = 0; snd:Play()
+        else pBtn.Text = "▶"; local n = (index % #AllMusicItems) + 1; AllMusicItems[n].Trigger() end 
+    end)
+    
+    AllMusicItems[index] = {Sound = snd, Button = pBtn, Trigger = triggerPlay}
+    
+    task.spawn(function() while task.wait(0.1) do if snd.TimeLength > 0 and not isDragging then timeLbl.Text = string.format("%02d:%02d / %02d:%02d", snd.TimePosition/60, snd.TimePosition%60, snd.TimeLength/60, snd.TimeLength%60); bar.Size = UDim2.new(math.clamp(snd.TimePosition/snd.TimeLength, 0, 1), 0, 1, 0) end end end)
+end
+
+MusicContainer.CanvasSize = UDim2.new(0, 0, 0, 300) 
+CreateMusicItem("Low Cortisal", "110919391228823", 20, 1)
+CreateMusicItem("Ashura", "118507373399694", 100, 2)
+CreateMusicItem("Crab Rave", "5410086218", 180, 3)
+
+-- Data Changelog
+local SupportGames = {"Coming Soon", "share the script", "Share the script", "BECOME A BRAINROT", "", "", "", "", "", "", ""}
+local UnsupportGames = {"Test", "Testing 1", "Testing 2"}
+local SupportText = Instance.new("TextLabel", ChangelogContainer); SupportText.Size = UDim2.new(0.5, 0, 0, 300); SupportText.Position = UDim2.new(0, 0, 0, 10); SupportText.BackgroundTransparency = 1; SupportText.TextColor3 = Color3.new(1, 1, 1); SupportText.TextXAlignment = Enum.TextXAlignment.Left; SupportText.TextYAlignment = Enum.TextYAlignment.Top; SupportText.Font = Enum.Font.GothamBold; SupportText.TextSize = 12
+local UnsupportText = Instance.new("TextLabel", ChangelogContainer); UnsupportText.Size = UDim2.new(0.5, 0, 0, 300); UnsupportText.Position = UDim2.new(0.5, 0, 0, 10); UnsupportText.BackgroundTransparency = 1; UnsupportText.TextColor3 = Color3.new(1, 1, 1); UnsupportText.TextXAlignment = Enum.TextXAlignment.Left; UnsupportText.TextYAlignment = Enum.TextYAlignment.Top; UnsupportText.Font = Enum.Font.GothamBold; UnsupportText.TextSize = 12
+
+local function RefreshLogs()
+    local filter = string.lower(SearchBox.Text)
+    local sOut = "Support Game:\n"
+    for _, v in pairs(SupportGames) do if filter == "" or string.find(string.lower(v), filter) then sOut = sOut .. "✓ " .. v .. "\n" end end
+    SupportText.Text = sOut
+    local uOut = "Unsupport Game:\n"
+    for _, v in pairs(UnsupportGames) do if filter == "" or string.find(string.lower(v), filter) then uOut = uOut .. "X " .. v .. "\n" end end
+    UnsupportText.Text = uOut
+end
+RefreshLogs()
+
+-- Tab & Layout Logic
+local function CreateBtn(parentFrame, name, varName, callback)
+    local btn = Instance.new("TextButton", parentFrame)
+    btn.Name = name; btn.Text = name; btn.Size = UDim2.new(0.45, 0, 0, 40);
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35); btn.TextColor3 = Color3.new(1, 1, 1); btn.Font = Enum.Font.Code; btn.TextSize = 12; Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+    btn.MouseButton1Click:Connect(function() _G[varName] = not _G[varName]; callback() end)
+    task.spawn(function() while task.wait(0.1) do btn.BackgroundColor3 = _G[varName] and Color3.fromRGB(0, 120, 215) or Color3.fromRGB(35, 35, 35) end end)
+end
+
+-- Update Layout
+local function UpdateLayout(container)
+    local input = string.lower(SearchBox.Text)
+    local xPos = {0.03, 0.52}
+    local yPos = 10
+    local col = 1
+    local visibleButtons = {}
+    for _, obj in pairs(container:GetChildren()) do
+        if obj:IsA("TextButton") then
+            if input == "" or string.find(string.lower(obj.Name), input) then obj.Visible = true; table.insert(visibleButtons, obj) else obj.Visible = false end
+        end
+    end
+    for i, btn in pairs(visibleButtons) do
+        btn.Position = UDim2.new(xPos[col], 0, 0, yPos)
+        if col == 2 then yPos = yPos + 45; col = 1 else col = 2 end
+    end
+end
+
+-- Reset Tabs
+local function ResetTabs() 
+    ChangelogContainer.Visible = false; MainContainer.Visible = false; PlayerContainer.Visible = false; MusicContainer.Visible = false
+    ChangelogBtn.BackgroundColor3 = Color3.fromRGB(25,25,25); MainFeaturesBtn.BackgroundColor3 = Color3.fromRGB(25,25,25); PlayerFeaturesBtn.BackgroundColor3 = Color3.fromRGB(25,25,25); MusicBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
+end
+
+-- Navigasi
+ChangelogBtn.MouseButton1Click:Connect(function() ResetTabs(); ChangelogContainer.Visible = true; ChangelogBtn.BackgroundColor3 = Color3.fromRGB(35,35,35) end)
+MainFeaturesBtn.MouseButton1Click:Connect(function() ResetTabs(); MainContainer.Visible = true; MainFeaturesBtn.BackgroundColor3 = Color3.fromRGB(35,35,35); UpdateLayout(MainContainer) end)
+PlayerFeaturesBtn.MouseButton1Click:Connect(function() ResetTabs(); PlayerContainer.Visible = true; PlayerFeaturesBtn.BackgroundColor3 = Color3.fromRGB(35,35,35); UpdateLayout(PlayerContainer) end)
+MusicBtn.MouseButton1Click:Connect(function() ResetTabs(); MusicContainer.Visible = true; MusicBtn.BackgroundColor3 = Color3.fromRGB(35,35,35) end)
+
+-- Menu Buttons
+CreateBtn(MainContainer, "(Nama Fungsi)", "Z1", function() end)
+CreateBtn(MainContainer, "(Nama Fungsi)", "Z2", function() end)
+CreateBtn(MainContainer, "(Nama Fungsi)", "RB", function() end)
+
+-- Player Buttons
+CreateBtn(PlayerContainer, "Enable WalkSpeed (100)", "WS", function() end)
+CreateBtn(PlayerContainer, "Anti AFK", "AFK", function() 
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+end)
+
+CreateBtn(PlayerContainer, "Noclip", "NOCLIP", function() 
+    local RunService = game:GetService("RunService")
+    RunService.Stepped:Connect(function()
+        if _G.NOCLIP and LocalPlayer.Character then
+            for _, v in ipairs(LocalPlayer.Character:GetDescendants()) do
+                if v:IsA("BasePart") then v.CanCollide = false end
+            end
+        end
+    end)
+end)
+
+CreateBtn(PlayerContainer, "Respawn", "RESPAWN", function()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.Health = 0
+    end
+end)
+
+CreateBtn(PlayerContainer, "ESP", "ESP", function()
+    local P = game:GetService("Players")
+    local RS = game:GetService("RunService")
+    local function setupCharacter(player, character)
+        if player == LocalPlayer then return end
+        local head = character:FindFirstChild("Head") or character:WaitForChild("Head")
+        local billboard = Instance.new("BillboardGui", head); billboard.Name = "InfoTag"; billboard.Size = UDim2.new(0, 300, 0, 20); billboard.AlwaysOnTop = true
+        local label = Instance.new("TextLabel", billboard); label.Size = UDim2.fromScale(1, 1); label.BackgroundTransparency = 1; label.TextColor3 = Color3.new(1,1,1); label.Font = Enum.Font.SourceSansBold
+        RS.RenderStepped:Connect(function()
+            if character and character:FindFirstChild("Humanoid") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head") then
+                local dist = (LocalPlayer.Character.Head.Position - head.Position).Magnitude
+                label.Text = "Name: "..player.Name.." | Health: "..math.floor(character.Humanoid.Health).." | Dist: "..math.floor(dist)
+            end
+        end)
+        local highlight = Instance.new("Highlight", character); highlight.FillColor = Color3.fromRGB(255, 50, 50); highlight.FillTransparency = 0.5
+    end
+    for _, pl in ipairs(P:GetPlayers()) do if pl.Character then setupCharacter(pl, pl.Character) end end
+end)
+
+CreateBtn(PlayerContainer, "Find Empty Server", "ES", function() 
+    local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+    local success, result = pcall(function() return game:HttpGet(url) end)
+    if success then
+        local data = HttpService:JSONDecode(result)
+        for _, server in pairs(data.data) do
+            if server.playing < server.maxPlayers and server.id ~= game.JobId then TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer); break end
+        end
+    end
+end)
+CreateBtn(PlayerContainer, "Rejoin", "REJOIN", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+
+-- UI & Loop Final
+SearchBox:GetPropertyChangedSignal("Text"):Connect(function() UpdateLayout(MainContainer); UpdateLayout(PlayerContainer); RefreshLogs() end)
+UpdateLayout(MainContainer); UpdateLayout(PlayerContainer)
+TweenService:Create(ProgressBar, TweenInfo.new(5), {Size = UDim2.new(1, 0, 1, 0)}):Play()
+task.delay(5.5, function() if LoadingFrame.Parent then LoadingFrame:Destroy(); MainMenu.Visible = true end end)
+
+task.spawn(function()
+    while task.wait(0.2) do
+        -- Main Logic Loop
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            -- HANYA jalankan jika _G.WS bernilai true
+            if _G.WS == true then 
+                LocalPlayer.Character.Humanoid.WalkSpeed = 100 
+            end
+            -- Jika _G.WS nil atau false, kita tidak melakukan apa-apa 
+            -- sehingga kecepatan asli bawaan game kamu tetap terjaga.
+        end
+        
+        -- Clean ESP if Disabled
+        if not _G.ESP then
+            for _, player in pairs(Players:GetPlayers()) do
+                if player.Character then
+                    if player.Character:FindFirstChild("Head") and player.Character.Head:FindFirstChild("InfoTag") then player.Character.Head.InfoTag:Destroy() end
+                    if player.Character:FindFirstChild("Highlight") then player.Character.Highlight:Destroy() end
+                end
+            end
+        end
+    end
+end)
