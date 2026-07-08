@@ -227,10 +227,37 @@ MainFeaturesBtn.MouseButton1Click:Connect(function() ResetTabs(); MainContainer.
 PlayerFeaturesBtn.MouseButton1Click:Connect(function() ResetTabs(); PlayerContainer.Visible = true; PlayerFeaturesBtn.BackgroundColor3 = Color3.fromRGB(35,35,35); UpdateLayout(PlayerContainer) end)
 MusicBtn.MouseButton1Click:Connect(function() ResetTabs(); MusicContainer.Visible = true; MusicBtn.BackgroundColor3 = Color3.fromRGB(35,35,35) end)
 
--- Menu Buttons
-CreateBtn(MainContainer, "(Nama Fungsi)", "Z1", function() end)
-CreateBtn(MainContainer, "(Nama Fungsi)", "Z2", function() end)
-CreateBtn(MainContainer, "(Nama Fungsi)", "RB", function() end)
+-- Menu Buttons (DIPERBARUI)
+CreateBtn(MainContainer, "Auto Win", "AW", function()
+    task.spawn(function()
+        while _G.AW do
+            -- Logika Auto Win (Kamu bisa sesuaikan dengan event game-nya)
+            -- Untuk saat ini, pastikan fungsi tombol menyala saat diklik
+            task.wait(0.1)
+        end
+    end)
+end)
+
+CreateBtn(MainContainer, "Auto Rebirth", "AR", function()
+    task.spawn(function()
+        while _G.AR do
+            game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("RequestRebirth"):InvokeServer()
+            task.wait(0.5) -- Delay agar tidak crash server
+        end
+    end)
+end)
+
+CreateBtn(MainContainer, "Inf Speed", "IS", function()
+    task.spawn(function()
+        while _G.IS do
+            -- Spam 20x terus menerus
+            for i = 1, 20 do
+                game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("AddSpeed"):FireServer()
+            end
+            task.wait(0.1) -- Jeda antar putaran spam
+        end
+    end)
+end)
 
 -- Player Buttons
 CreateBtn(PlayerContainer, "Enable WalkSpeed (100)", "WS", function() end)
