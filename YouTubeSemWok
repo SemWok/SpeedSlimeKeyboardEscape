@@ -228,11 +228,10 @@ PlayerFeaturesBtn.MouseButton1Click:Connect(function() ResetTabs(); PlayerContai
 MusicBtn.MouseButton1Click:Connect(function() ResetTabs(); MusicContainer.Visible = true; MusicBtn.BackgroundColor3 = Color3.fromRGB(35,35,35) end)
 
 -- Menu Buttons (DIPERBARUI)
--- Menu Buttons (DIPERBARUI)
 CreateBtn(MainContainer, "Auto Win", "AW", function()
     task.spawn(function()
         while _G.AW do
-            -- Y sudah dinaikkan 2 poin: 174.545883
+            -- Y: 174.545883
             local targetPos = Vector3.new(200.776566, 174.545883, -4761.112793)
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
@@ -254,8 +253,8 @@ end)
 CreateBtn(MainContainer, "Inf Speed", "IS", function()
     task.spawn(function()
         while _G.IS do
-            -- Spam 1.000x setiap putaran
-            for i = 1, 1000 do
+            -- Spam 100x setiap putaran
+            for i = 1, 100 do
                 game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("AddSpeed"):FireServer()
             end
             task.wait(0.1)
