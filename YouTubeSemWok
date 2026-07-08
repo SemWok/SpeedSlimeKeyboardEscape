@@ -253,8 +253,8 @@ end)
 CreateBtn(MainContainer, "Inf Speed", "IS", function()
     task.spawn(function()
         while _G.IS do
-            -- Spam 100x setiap putaran
-            for i = 1, 100 do
+            -- Spam 25x setiap putaran
+            for i = 1, 25 do
                 game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("AddSpeed"):FireServer()
             end
             task.wait(0.1)
